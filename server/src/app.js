@@ -15,8 +15,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors("*")); // Allow all origins, adjust as needed
 app.use(morgan("dev"));
 
-cron.schedule("* * * * *", () => {
-  console.log("⏳ Cron job running every minute:", new Date().toLocaleString());
+cron.schedule("0 * * * *", () => {
+  console.log("⏳ Cron job running every hour:", new Date().toLocaleString());
   delete1DayOldFiles()
     .then(() => console.log("✅ Old files deleted successfully."))
     .catch((error) => console.error("❌ Error deleting old files:", error));

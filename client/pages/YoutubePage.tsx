@@ -6,6 +6,8 @@ import { FiEye } from "react-icons/fi";
 import { FaThumbsUp } from "react-icons/fa";
 import ProcessingDownload from "@/components/ProcessingDownload";
 
+const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL ?? "";
+
 function YoutubePage() {
   const [url, setUrl] = useState("");
   const [videoInfo, setVideoInfo] = useState<any>(null);
@@ -13,6 +15,8 @@ function YoutubePage() {
   const [DownloadType, setDownloadType] = useState<
     "video" | "audio" | "metaInfo" | null
   >(null);
+
+  console.log("Server URL:", SERVER_URL);
 
   const handleProcess = async () => {
     if (!url.trim()) {
@@ -24,7 +28,7 @@ function YoutubePage() {
     setDownloadType("metaInfo");
     try {
       const res = await axios.get(
-        `http://localhost:8080/yt/video/info?url=${encodeURIComponent(url)}`
+        `${SERVER_URL}/yt/video/info?url=${encodeURIComponent(url)}`
       );
       setVideoInfo(res.data);
       setUrl(""); // Clear input after successful fetch
@@ -79,13 +83,13 @@ function YoutubePage() {
   const handleDownload = async (format_id: string, type: any) => {
     try {
       setDownloadType(type);
-      const url = `http://localhost:8080/yt/video/download?videoId=${encodeURIComponent(
+      const url = `${SERVER_URL}/yt/video/download?videoId=${encodeURIComponent(
         videoInfo.videoId
       )}&format_id=${encodeURIComponent(format_id)}`;
-  
+
       const res = await axios.get(url);
       const filePath = res.data.publicUrl;
-  
+
       // Create an anchor element
       const link = document.createElement("a");
       link.href = `/get_file?url=${encodeURIComponent(filePath)}`;
