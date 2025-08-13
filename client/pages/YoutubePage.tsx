@@ -2,15 +2,17 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { PlayCircle } from "lucide-react";
-import ProcessingModal from "@/components/ProcessingModal";
 import { FiEye } from "react-icons/fi";
-import { FaThumbsUp, FaThumbsDown } from "react-icons/fa";
+import { FaThumbsUp } from "react-icons/fa";
+import ProcessingDownload from "@/components/ProcessingDownload";
 
 function YoutubePage() {
   const [url, setUrl] = useState("");
   const [videoInfo, setVideoInfo] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [DownloadType, setDownloadType] = useState<
+    "video" | "audio" | "metaInfo" | null
+  >(null);
 
   const handleProcess = async () => {
     if (!url.trim()) {
@@ -19,7 +21,7 @@ function YoutubePage() {
     }
     setError("");
     setVideoInfo(null);
-    setLoading(true);
+    setDownloadType("metaInfo");
     try {
       const res = await axios.get(
         `http://localhost:8080/yt/video/info?url=${encodeURIComponent(url)}`
@@ -29,7 +31,7 @@ function YoutubePage() {
     } catch (err: any) {
       setError(err.message);
     }
-    setLoading(false);
+    setDownloadType(null);
   };
 
   function formatDate(dateStr: string) {
@@ -74,9 +76,28 @@ function YoutubePage() {
 
   console.log(videoInfo);
 
+  const handleDownload = async (format_id: string, type: any) => {
+    setDownloadType(type);
+    const url = `http://localhost:8080/yt/video/download?videoId=${encodeURIComponent(
+      videoInfo.videoId
+    )}&format_id=${encodeURIComponent(format_id)}`;
+
+    const res = await axios.get(url);
+    const filePath = res.data.publicUrl;
+
+    // Create an anchor element
+    const link = document.createElement("a");
+    link.href = `/get_file?url=${encodeURIComponent(filePath)}`;
+    link.download = filePath.split("/").pop() || "downloaded_file";
+    link.click();
+    setDownloadType(null);
+  };
+
   return (
     <div className="p-6 max-w-6xl mx-auto font-sans">
-      {loading && <ProcessingModal />}
+      {DownloadType && <ProcessingDownload type={DownloadType} />}
+
+      {/* Background Animation */}
       {/* Header */}
       <div className="text-center mb-8 animate-fadeIn">
         <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-purple-500 drop-shadow-lg">
@@ -89,7 +110,7 @@ function YoutubePage() {
       </div>
 
       {/* Input Section */}
-      <div className="flex flex-col sm:flex-row items-center gap-3 mb-6">
+      <div className="flex flex-col sm:flex-row items-center gap-3 mb-6 w-full">
         <input
           type="text"
           placeholder="🎥 Paste YouTube URL here..."
@@ -97,14 +118,32 @@ function YoutubePage() {
           onChange={(e) => setUrl(e.target.value)}
           className="w-full border border-gray-300 rounded-lg p-3 shadow-md focus:outline-none focus:ring-4 focus:ring-red-400 transition"
         />
-        <button
-          onClick={handleProcess}
-          disabled={loading}
-          className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 transition text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 transform hover:scale-105 active:scale-95"
-        >
-          <PlayCircle size={20} className="animate-pulse" />
-          {loading ? "Processing..." : "Process"}
-        </button>
+
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+          {!url ? (
+            <button
+              onClick={() => navigator.clipboard.readText().then(setUrl)}
+              className="w-full sm:w-auto bg-gray-200 hover:bg-gray-300 transition text-gray-700 px-6 py-3 rounded-lg shadow-lg"
+            >
+              Paste
+            </button>
+          ) : (
+            <button
+              onClick={() => setUrl("")}
+              className="w-full sm:w-auto bg-gray-200 hover:bg-gray-300 transition text-gray-700 px-6 py-3 rounded-lg shadow-lg"
+            >
+              Clear
+            </button>
+          )}
+          <button
+            onClick={handleProcess}
+            disabled={DownloadType === "metaInfo"}
+            className="w-full sm:w-auto bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 transition text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 justify-center transform hover:scale-105 active:scale-95"
+          >
+            <PlayCircle size={20} className="animate-pulse" />
+            {DownloadType === "metaInfo" ? "Processing..." : "Process"}
+          </button>
+        </div>
       </div>
 
       {/* Error Message */}
@@ -146,15 +185,13 @@ function YoutubePage() {
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {videoInfo.formats.audio.map((a: any) => (
-                        <a
+                        <button
+                          onClick={() => handleDownload(a.format_id, "audio")}
                           key={a.format_id}
-                          href={`http://localhost:8080/yt/video/download?videoId=${encodeURIComponent(videoInfo.videoId)}&format_id=${a.format_id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm shadow transition transform hover:scale-105"
+                          className="px-4 py-2 cursor-pointer bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm shadow transition transform hover:scale-105"
                         >
-                          {a.ext.toUpperCase()} ({a.resolution})
-                        </a>
+                          {a.resolution} ({a.ext.toUpperCase()})
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -168,17 +205,13 @@ function YoutubePage() {
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {videoInfo.formats.video.map((v: any) => (
-                        <a
+                        <button
+                          onClick={() => handleDownload(v.format_id, "video")}
                           key={v.format_id}
-                          href={`http://localhost:8080/yt/video/download?videoId=${encodeURIComponent(
-                            videoInfo.videoId
-                          )}&format_id=${v.format_id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-sm shadow transition transform hover:scale-105"
+                          className="px-4 py-2 cursor-pointer bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm shadow transition transform hover:scale-105"
                         >
                           {v.resolution} ({v.ext.toUpperCase()})
-                        </a>
+                        </button>
                       ))}
                     </div>
                   </div>

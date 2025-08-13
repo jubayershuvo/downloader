@@ -5,6 +5,23 @@ import { extractYTVideoId } from "../utils/get-id.js";
 import fs from "fs";
 import path from "path";
 
+
+
+
+const downloadCmd = async (publicUrl, res) => {
+  try {
+    res.status(200).json({
+      message: "File downloaded successfully",
+      publicUrl: publicUrl,
+    });
+    return null;
+  } catch (error) {
+    console.error("Error downloading file from R2:", error);
+    res.status(500).send("Error downloading file from R2");
+    return null;
+  }
+};
+
 export const videoDownload = async (req, res) => {
   const formatMap = {
     "4320p": ["337"], // 8K VP9
@@ -77,10 +94,8 @@ export const videoDownload = async (req, res) => {
       const r2Key = `${videoId}/${safeTitle}-${format_id}-jsCoder.mp3`;
       const audioExists = await isFileExistsInR2(r2Key);
       if (audioExists) {
-        return res.status(200).json({
-          message: "Audio already exists in R2",
-          publicUrl: audioExists,
-        });
+        downloadCmd(audioExists, res);
+        return;
       }
 
       await ytdlp(videoInfo.youtubeUrl, {
@@ -100,9 +115,7 @@ export const videoDownload = async (req, res) => {
       );
       await safeUnlink(audioFilePath);
 
-      return res
-        .status(200)
-        .json({ message: "Audio downloaded successfully", publicUrl });
+      return downloadCmd(publicUrl, res);
     } else {
       // VIDEO + AUDIO FLOW
       const resolution =
@@ -115,20 +128,17 @@ export const videoDownload = async (req, res) => {
       const possibleIds = getIdsByResolution(resolution);
 
       const formatString =
-        possibleIds.map((id) => `${id}+bestaudio`).join("/") + "/best";
+        possibleIds.map((id) => `${id}+140`).join("/") + "/best";
       console.log("Downloading video with format:", formatString);
 
       const r2Key = `${videoId}/${safeTitle}-${resolution}-jsCoder.mp4`;
       const videoExists = await isFileExistsInR2(r2Key);
       if (videoExists) {
-        return res.status(200).json({
-          message: "Video already exists in R2",
-          publicUrl: videoExists,
-        });
+        return downloadCmd(videoExists, res);
       }
 
       await ytdlp(videoInfo.youtubeUrl, {
-        format: `${format_id}+bestaudio/${formatString}`,
+        format: `${format_id}+140/${formatString}`,
         mergeOutputFormat: "mp4",
         output: videoFilePath,
         noWarnings: true,
@@ -145,10 +155,7 @@ export const videoDownload = async (req, res) => {
       );
       await safeUnlink(videoFilePath);
 
-      return res.status(200).json({
-        message: "Video downloaded and merged successfully",
-        publicUrl,
-      });
+      return downloadCmd(publicUrl, res);
     }
   } catch (e) {
     console.error("Error downloading video:", e);
@@ -201,6 +208,8 @@ export const videoInfo = async (req, res) => {
 
       // Skip formats without audio or video codec (none means no codec)
       if (f.vcodec === "none" && f.acodec === "none") continue;
+
+      if (!f.url) continue;
 
       // Define resolution or fallback label
       const resolution = f.height
