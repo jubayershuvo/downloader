@@ -63,7 +63,7 @@ export const videoDownload = async (req, res) => {
 
   try {
     const videoInfo = await videoModel.findOne({ videoId });
-    if (!videoInfo || !videoInfo.youtubeUrl) {
+    if (!videoInfo || !videoInfo.url) {
       return res.status(404).json({ error: "Video not found" });
     }
 
@@ -98,7 +98,7 @@ export const videoDownload = async (req, res) => {
         return;
       }
 
-      await ytdlp(videoInfo.youtubeUrl, {
+      await ytdlp(videoInfo.url, {
         format: `${format_id}/bestaudio`,
         output: audioFilePath,
         noWarnings: true,
@@ -137,7 +137,7 @@ export const videoDownload = async (req, res) => {
         return downloadCmd(videoExists, res);
       }
 
-      await ytdlp(videoInfo.youtubeUrl, {
+      await ytdlp(videoInfo.url, {
         format: `${format_id}+140/${formatString}`,
         mergeOutputFormat: "mp4",
         output: videoFilePath,
@@ -280,7 +280,7 @@ export const videoInfo = async (req, res) => {
         video: videoFormats,
         audio: audioFormats,
       },
-      youtubeUrl: url,
+      url: url,
     };
 
     // Respond first

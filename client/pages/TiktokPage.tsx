@@ -8,7 +8,7 @@ import ProcessingDownload from "@/components/ProcessingDownload";
 
 const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL ?? "";
 
-function YoutubePage() {
+function TiktokPage() {
   const [url, setUrl] = useState("");
   const [videoInfo, setVideoInfo] = useState<any>(null);
   const [error, setError] = useState("");
@@ -20,7 +20,7 @@ function YoutubePage() {
 
   const handleProcess = async () => {
     if (!url.trim()) {
-      setError("Please paste a YouTube URL");
+      setError("Please paste a Tiktok URL");
       return;
     }
     setError("");
@@ -28,7 +28,7 @@ function YoutubePage() {
     setDownloadType("metaInfo");
     try {
       const res = await axios.get(
-        `${SERVER_URL}/yt/video/info?url=${encodeURIComponent(url)}`
+        `${SERVER_URL}/tiktok/video/info?url=${encodeURIComponent(url)}`
       );
       setVideoInfo(res.data);
       setUrl(""); // Clear input after successful fetch
@@ -40,9 +40,9 @@ function YoutubePage() {
 
   function formatDate(dateStr: string) {
     // Extract parts
-    const year = dateStr.slice(0, 4);
-    const monthNum = parseInt(dateStr.slice(4, 6), 10);
-    const day = dateStr.slice(6, 8);
+    const year = dateStr?.slice(0, 4);
+    const monthNum = parseInt(dateStr?.slice(4, 6), 10);
+    const day = dateStr?.slice(6, 8);
 
     // Month names array
     const months = [
@@ -83,7 +83,7 @@ function YoutubePage() {
   const handleDownload = async (format_id: string, type: any) => {
     try {
       setDownloadType(type);
-      const url = `${SERVER_URL}/yt/video/download?videoId=${encodeURIComponent(
+      const url = `${SERVER_URL}/tiktok/video/download?videoId=${encodeURIComponent(
         videoInfo.videoId
       )}&format_id=${encodeURIComponent(format_id)}`;
 
@@ -111,7 +111,7 @@ function YoutubePage() {
       {/* Header */}
       <div className="text-center mb-8 animate-fadeIn">
         <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-purple-500 drop-shadow-lg">
-          YouTube Video Downloader
+          Tiktok Video Downloader
         </h1>
         <p className="text-gray-600 mt-2 text-lg">
           Download in up to <span className="font-semibold">4K</span> or extract
@@ -123,7 +123,7 @@ function YoutubePage() {
       <div className="flex flex-col sm:flex-row items-center gap-3 mb-6 w-full">
         <input
           type="text"
-          placeholder="🎥 Paste YouTube URL here..."
+          placeholder="🎥 Paste Tiktok URL here..."
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           className="w-full border border-gray-300 rounded-lg p-3 shadow-md focus:outline-none focus:ring-4 focus:ring-red-400 transition"
@@ -188,13 +188,13 @@ function YoutubePage() {
               {/* Formats */}
               <div className="flex-1 flex flex-col gap-4">
                 {/* Audio */}
-                {videoInfo.formats?.audio?.length > 0 && (
+                {videoInfo.formats?.watermarked?.length > 0 && (
                   <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl shadow p-5 hover:shadow-lg transition">
                     <h3 className="text-lg font-semibold mb-3 text-green-700">
                       Audio Formats
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {videoInfo.formats.audio.map((a: any) => (
+                      {videoInfo.formats.watermarked.map((a: any) => (
                         <button
                           onClick={() => handleDownload(a.format_id, "audio")}
                           key={a.format_id}
@@ -297,4 +297,4 @@ function YoutubePage() {
   );
 }
 
-export default YoutubePage;
+export default TiktokPage;

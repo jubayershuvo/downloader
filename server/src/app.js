@@ -6,6 +6,7 @@ import cron from "node-cron";
 import "dotenv/config";
 import ytRouter from "./routers/yt-routes.js";
 import { delete1DayOldFiles } from "./utils/r2Client.js";
+import tiktokRouter from "./routers/tiktok-routes.js";
 
 const app = express();
 
@@ -28,5 +29,6 @@ app.get("/", (req, res) => {
 });
 
 app.use("/yt", ytRouter);
+app.use("/tiktok", tiktokRouter);
 
 export default app;

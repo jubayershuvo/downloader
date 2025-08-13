@@ -1,9 +1,9 @@
 import {
   S3Client,
-  PutObjectCommand,
   ListObjectsV2Command,
   DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
 
 export const s3 = new S3Client({
   endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
@@ -15,15 +15,39 @@ export const s3 = new S3Client({
 });
 
 export async function uploadStreamToR2(key, stream, contentType) {
-  const command = new PutObjectCommand({
-    Bucket: process.env.R2_BUCKET_NAME,
-    Key: key,
-    Body: stream,
-    ContentType: contentType,
-    ACL: "public-read",
+  const upload = new Upload({
+    client: s3,
+    params: {
+      Bucket: process.env.R2_BUCKET_NAME,
+      Key: key,
+      Body: stream,
+      ContentType: contentType,
+      ACL: "public-read",
+    },
+    queueSize: 4, // concurrency for parts
+    partSize: 10 * 1024 * 1024, // 10 MB per part
+    leavePartsOnError: false,
   });
 
-  await s3.send(command);
+  upload.on("httpUploadProgress", (progress) => {
+    function formatSize(bytes) {
+      if (bytes === 0) return "0 Bytes";
+
+      const units = ["Bytes", "KB", "MB", "GB", "TB"];
+      const i = Math.floor(Math.log(bytes) / Math.log(1024));
+
+      const size = bytes / Math.pow(1024, i);
+      return `${size.toFixed(2)} ${units[i]}`;
+    }
+
+    const loadedSize = formatSize(progress.loaded);
+    const totalSize = progress.total ? formatSize(progress.total) : "unknown";
+    console.log(
+      `Uploaded ${(progress.loaded/progress.total)*100}%  (${loadedSize}/${totalSize})`
+    );
+  });
+
+  await upload.done();
   return `${process.env.R2_PUBLIC_DOMAIN}/${key}`;
 }
 

@@ -27,15 +27,12 @@ const videoInfoSchema = new mongoose.Schema({
   likeCount: { type: Number },
   dislikeCount: { type: Number },
   uploaderUrl: { type: String },
-  // playUrl: {
-  //   audio: { type: String, default: "" },
-  //   video: { type: String, default: "" },
-  // },
-  youtubeUrl: { type: String, required: true },
+  url: { type: String, required: true },
 
   formats: {
     audio: [formatSchema],
     video: [formatSchema],
+    watermarked: [formatSchema],
   },
 
   createdAt: { type: Date, default: Date.now },
