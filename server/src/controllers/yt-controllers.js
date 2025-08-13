@@ -4,11 +4,22 @@ import ytdlp from "yt-dlp-exec";
 import { extractYTVideoId } from "../utils/get-id.js";
 import fs from "fs";
 import path from "path";
+import slugify from "slugify"; // npm install slugify
 
-
-
+const makeSafeR2Key = (videoId, title, formatId, ext) => {
+  // Remove dangerous filesystem & HTTP chars, strip emojis
+  const asciiTitle = slugify(title, {
+    replacement: "-",
+    remove: /[^\x00-\x7F]/g, // remove non-ASCII
+    lower: false,
+    strict: true,
+    trim: true,
+  });
+  return `${videoId}/${asciiTitle}-${formatId}-jsCoder.${ext}`;
+};
 
 const downloadCmd = async (publicUrl, res) => {
+  console.log("Downloading file from R2:", publicUrl);
   try {
     res.status(200).json({
       message: "File downloaded successfully",
@@ -91,7 +102,7 @@ export const videoDownload = async (req, res) => {
 
     if (requestedFormat.included === "audio") {
       // AUDIO FLOW
-      const r2Key = `${videoId}/${safeTitle}-${format_id}-jsCoder.mp3`;
+      const r2Key = makeSafeR2Key(videoId, videoInfo.title, format_id, "mp3");
       const audioExists = await isFileExistsInR2(r2Key);
       if (audioExists) {
         downloadCmd(audioExists, res);
@@ -131,7 +142,7 @@ export const videoDownload = async (req, res) => {
         possibleIds.map((id) => `${id}+140`).join("/") + "/best";
       console.log("Downloading video with format:", formatString);
 
-      const r2Key = `${videoId}/${safeTitle}-${resolution}-jsCoder.mp4`;
+      const r2Key = makeSafeR2Key(videoId, videoInfo.title, format_id, "mp4");
       const videoExists = await isFileExistsInR2(r2Key);
       if (videoExists) {
         return downloadCmd(videoExists, res);
@@ -176,7 +187,9 @@ export const videoInfo = async (req, res) => {
 
   try {
     // Check cache first
-    const cachedInfo = await videoModel.findOne({ videoId: video_id });
+    const cachedInfo =
+      (await videoModel.findOne({ videoId: video_id })) ||
+      (await videoModel.findOne({ url }));
     if (cachedInfo) {
       return res.status(200).json(cachedInfo);
     }

@@ -83,12 +83,11 @@ function YoutubePage() {
   const handleDownload = async (format_id: string, type: any) => {
     try {
       setDownloadType(type);
-      const url = `${SERVER_URL}/yt/video/download?videoId=${encodeURIComponent(
-        videoInfo.videoId
-      )}&format_id=${encodeURIComponent(format_id)}`;
+      const url = `${SERVER_URL}/yt/video/download?videoId=${videoInfo.videoId}&format_id=${format_id}`;
 
       const res = await axios.get(url);
       const filePath = res.data.publicUrl;
+      console.log("File path:", filePath);
 
       // Create an anchor element
       const link = document.createElement("a");
@@ -132,7 +131,7 @@ function YoutubePage() {
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
           {!url ? (
             <button
-              onClick={() => navigator.clipboard.readText().then(setUrl)}
+               onClick={() => navigator?.clipboard?.readText().then(setUrl)}
               className="w-full sm:w-auto bg-gray-200 hover:bg-gray-300 transition text-gray-700 px-6 py-3 rounded-lg shadow-lg"
             >
               Paste

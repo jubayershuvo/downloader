@@ -1,35 +1,41 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get("url");
 
   if (!url) {
-    return new Response("Missing url", { status: 400 });
+    return new NextResponse("Missing url", { status: 400 });
   }
+  console.log("Fetching file from URL:", url);
 
-  // Fetch the file from the remote URL
-  const fileRes = await fetch(url);
+  let fileRes;
+  try {
+    fileRes = await fetch(url);
+  } catch {
+    return NextResponse.redirect(url);
+  }
 
   if (!fileRes.ok) {
-    return new Response("Failed to fetch file", { status: 500 });
+    return NextResponse.redirect(url);
   }
 
-  // Get content type
   const contentType = fileRes.headers.get("content-type") || "application/octet-stream";
-
-  // Get content length
-  const contentLength = fileRes.headers.get("content-length") || undefined;
+  const contentLength = fileRes.headers.get("content-length");
 
   // Decode filename from URL
   const rawFilename = url.split("/").pop() || "file";
-  const filename = decodeURIComponent(rawFilename);
+  const decodedFilename = decodeURIComponent(rawFilename);
 
-  return new Response(fileRes.body, {
+  // Encode safely for Content-Disposition
+  const safeFilename = encodeURIComponent(decodedFilename);
+
+  console.log("Serving file:", decodedFilename);
+
+  return new NextResponse(fileRes.body, {
     headers: {
       "Content-Type": contentType,
-      "Content-Disposition": `attachment; filename="${filename}"`,
-      ...(contentLength && { "Content-Length": contentLength }),
+      "Content-Disposition": `attachment; filename*=UTF-8''${safeFilename}`,
+      ...(contentLength && { "Content-Length": contentLength })
     },
   });
 }
-

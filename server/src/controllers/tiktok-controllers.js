@@ -4,8 +4,22 @@ import ytdlp from "yt-dlp-exec";
 import { extractTikTokId, extractYTVideoId } from "../utils/get-id.js";
 import fs from "fs";
 import path from "path";
+import slugify from "slugify"; // npm install slugify
+
+const makeSafeR2Key = (videoId, title, formatId, ext) => {
+  // Remove dangerous filesystem & HTTP chars, strip emojis
+  const asciiTitle = slugify(title, {
+    replacement: "-",
+    remove: /[^\x00-\x7F]/g, // remove non-ASCII
+    lower: false,
+    strict: true,
+    trim: true,
+  });
+  return `${videoId}/${asciiTitle}-${formatId}-jsCoder.${ext}`;
+};
 
 const downloadCmd = async (publicUrl, res) => {
+  console.log("Downloading file from R2:", publicUrl);
   try {
     res.status(200).json({
       message: "File downloaded successfully",
@@ -56,7 +70,7 @@ export const videoDownload = async (req, res) => {
 
     const videoFilePath = path.join(
       tempDir,
-      `${safeTitle}-${requestedFormat.resolution}.mp4`
+      `${videoId}-${requestedFormat.resolution}.mp4`
     );
 
     // VIDEO + AUDIO FLOW
@@ -66,14 +80,15 @@ export const videoDownload = async (req, res) => {
       return res.status(400).json({ error: "Invalid format_id" });
     }
 
-    const r2Key = `${videoId}/${safeTitle}-${resolution}-jsCoder.mp4`;
+    const r2Key = makeSafeR2Key(videoId, videoInfo.title, format_id, "mp4");
+
     const videoExists = await isFileExistsInR2(r2Key);
     if (videoExists) {
       return downloadCmd(videoExists, res);
     }
 
     await ytdlp(videoInfo.url, {
-      format: format_id+"+ba/best",
+      format: format_id + "+ba/best",
       output: videoFilePath,
       noWarnings: true,
       noCheckCertificates: true,
@@ -108,10 +123,17 @@ export const videoInfo = async (req, res) => {
 
   try {
     // Cache check
-    const cachedInfo = await videoModel.findOne({
-      videoId: extractTikTokId(url),
-    });
+    const videoId = extractTikTokId(url);
+    if (!videoId) {
+      return res.status(400).json({ error: "Invalid URL" });
+    }
+    console.log("Video ID:", videoId);
+
+    const cachedInfo =
+      (await videoModel.findOne({ videoId })) ||
+      (await videoModel.findOne({ url: url }));
     if (cachedInfo) {
+      console.log("Cache hit for TikTok video:", videoId);
       return res.status(200).json(cachedInfo);
     }
 

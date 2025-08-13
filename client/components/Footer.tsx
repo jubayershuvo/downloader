@@ -9,12 +9,12 @@ const Footer = () => {
         <p className="mt-2 sm:mt-0">
           Made with ❤️ by{" "}
           <a
-            href="https://yourwebsite.com"
+            href="https://www.linkedin.com/in/jubayershuvo/"
             target="_blank"
             rel="noopener noreferrer"
             className="underline hover:text-pink-400 transition-colors duration-300"
           >
-            Your Name
+            Md Jubayer
           </a>
         </p>
       </div>
