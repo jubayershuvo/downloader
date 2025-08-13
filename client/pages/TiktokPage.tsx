@@ -19,7 +19,7 @@ function TiktokPage() {
   console.log("Server URL:", SERVER_URL);
 
   const handleProcess = async () => {
-    if (!url.trim()) {
+    if (!url.trim() || !url.includes("tiktok.com")) {
       setError("Please paste a Tiktok URL");
       return;
     }
