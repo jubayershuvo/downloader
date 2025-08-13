@@ -6,7 +6,7 @@ import fs from "fs";
 import path from "path";
 import slugify from "slugify"; // npm install slugify
 
-const makeSafeR2Key = (videoId, title, formatId, ext) => {
+const makeSafeR2Key = (videoId, title, resolution, ext) => {
   // Remove dangerous filesystem & HTTP chars, strip emojis
   const asciiTitle = slugify(title, {
     replacement: "-",
@@ -15,7 +15,7 @@ const makeSafeR2Key = (videoId, title, formatId, ext) => {
     strict: true,
     trim: true,
   });
-  return `${videoId}/${asciiTitle}-${formatId}-jsCoder.${ext}`;
+  return `${videoId}/${asciiTitle}-${resolution}-jsCoder.${ext}`;
 };
 
 const downloadCmd = async (publicUrl, res) => {
@@ -93,16 +93,16 @@ export const videoDownload = async (req, res) => {
 
     const videoFilePath = path.join(
       tempDir,
-      `${safeTitle}-${requestedFormat.resolution}.mp4`
+      `${safeTitle}-${sanitize(requestedFormat.resolution)}.mp4`
     );
     const audioFilePath = path.join(
       tempDir,
-      `${safeTitle}-${requestedFormat.resolution}.mp3`
+      `${safeTitle}-${sanitize(requestedFormat.resolution)}.mp3`
     );
 
     if (requestedFormat.included === "audio") {
       // AUDIO FLOW
-      const r2Key = makeSafeR2Key(videoId, videoInfo.title, format_id, "mp3");
+      const r2Key = makeSafeR2Key(videoId, videoInfo.title, requestedFormat.resolution, "mp3");
       const audioExists = await isFileExistsInR2(r2Key);
       if (audioExists) {
         downloadCmd(audioExists, res);
@@ -110,7 +110,7 @@ export const videoDownload = async (req, res) => {
       }
 
       await ytdlp(videoInfo.url, {
-        format: `${format_id}/bestaudio`,
+        format: `${format_id}/bestaudio/`,
         output: audioFilePath,
         noWarnings: true,
         noCheckCertificates: true,
@@ -142,7 +142,7 @@ export const videoDownload = async (req, res) => {
         possibleIds.map((id) => `${id}+140`).join("/") + "/best";
       console.log("Downloading video with format:", formatString);
 
-      const r2Key = makeSafeR2Key(videoId, videoInfo.title, format_id, "mp4");
+      const r2Key = makeSafeR2Key(videoId, videoInfo.title, resolution, "mp4");
       const videoExists = await isFileExistsInR2(r2Key);
       if (videoExists) {
         return downloadCmd(videoExists, res);

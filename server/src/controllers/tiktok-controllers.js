@@ -6,7 +6,7 @@ import fs from "fs";
 import path from "path";
 import slugify from "slugify"; // npm install slugify
 
-const makeSafeR2Key = (videoId, title, formatId, ext) => {
+const makeSafeR2Key = (videoId, title, resolution, ext) => {
   // Remove dangerous filesystem & HTTP chars, strip emojis
   const asciiTitle = slugify(title, {
     replacement: "-",
@@ -15,7 +15,7 @@ const makeSafeR2Key = (videoId, title, formatId, ext) => {
     strict: true,
     trim: true,
   });
-  return `${videoId}/${asciiTitle}-${formatId}-jsCoder.${ext}`;
+  return `${videoId}/${asciiTitle}-${resolution}-jsCoder.${ext}`;
 };
 
 const downloadCmd = async (publicUrl, res) => {
@@ -64,13 +64,13 @@ export const videoDownload = async (req, res) => {
       return res.status(404).json({ error: "Requested format not found" });
     }
 
-    const safeTitle = sanitize(videoInfo.title);
+
     const tempDir = path.resolve("./temp");
     await fs.promises.mkdir(tempDir, { recursive: true });
 
     const videoFilePath = path.join(
       tempDir,
-      `${videoId}-${requestedFormat.resolution}.mp4`
+      `${videoId}-${sanitize(requestedFormat.resolution)}.mp4`
     );
 
     // VIDEO + AUDIO FLOW
@@ -80,7 +80,7 @@ export const videoDownload = async (req, res) => {
       return res.status(400).json({ error: "Invalid format_id" });
     }
 
-    const r2Key = makeSafeR2Key(videoId, videoInfo.title, format_id, "mp4");
+    const r2Key = makeSafeR2Key(videoId, videoInfo.title, resolution, "mp4");
 
     const videoExists = await isFileExistsInR2(r2Key);
     if (videoExists) {

@@ -88,7 +88,7 @@ function YoutubePage() {
 
       const res = await axios.get(url);
       const filePath = res.data.publicUrl;
-      console.log("File path:", filePath);
+
 
       // Create an anchor element
       const link = document.createElement("a");
