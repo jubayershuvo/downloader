@@ -1,18 +1,26 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
+import cron from "node-cron";
 
-import 'dotenv/config';
+import "dotenv/config";
 import ytRouter from "./routers/yt-routes.js";
+import { delete1DayOldFiles } from "./utils/r2Client.js";
 
 const app = express();
-
 
 // Middleware (optional)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors('*')); // Allow all origins, adjust as needed
+app.use(cors("*")); // Allow all origins, adjust as needed
 app.use(morgan("dev"));
+
+cron.schedule("* * * * *", () => {
+  console.log("⏳ Cron job running every minute:", new Date().toLocaleString());
+  delete1DayOldFiles()
+    .then(() => console.log("✅ Old files deleted successfully."))
+    .catch((error) => console.error("❌ Error deleting old files:", error));
+});
 
 // Routes (example)
 app.get("/", (req, res) => {

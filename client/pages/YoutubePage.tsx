@@ -77,20 +77,26 @@ function YoutubePage() {
   console.log(videoInfo);
 
   const handleDownload = async (format_id: string, type: any) => {
-    setDownloadType(type);
-    const url = `http://localhost:8080/yt/video/download?videoId=${encodeURIComponent(
-      videoInfo.videoId
-    )}&format_id=${encodeURIComponent(format_id)}`;
-
-    const res = await axios.get(url);
-    const filePath = res.data.publicUrl;
-
-    // Create an anchor element
-    const link = document.createElement("a");
-    link.href = `/get_file?url=${encodeURIComponent(filePath)}`;
-    link.download = filePath.split("/").pop() || "downloaded_file";
-    link.click();
-    setDownloadType(null);
+    try {
+      setDownloadType(type);
+      const url = `http://localhost:8080/yt/video/download?videoId=${encodeURIComponent(
+        videoInfo.videoId
+      )}&format_id=${encodeURIComponent(format_id)}`;
+  
+      const res = await axios.get(url);
+      const filePath = res.data.publicUrl;
+  
+      // Create an anchor element
+      const link = document.createElement("a");
+      link.href = `/get_file?url=${encodeURIComponent(filePath)}`;
+      link.download = filePath.split("/").pop() || "downloaded_file";
+      link.click();
+      setDownloadType(null);
+    } catch (error) {
+      setDownloadType(null);
+      console.error("Download error:", error);
+      setError("Failed to download the file. Please try again.");
+    }
   };
 
   return (
@@ -208,7 +214,7 @@ function YoutubePage() {
                         <button
                           onClick={() => handleDownload(v.format_id, "video")}
                           key={v.format_id}
-                          className="px-4 py-2 cursor-pointer bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm shadow transition transform hover:scale-105"
+                          className="px-4 py-2 cursor-pointer bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-sm shadow transition transform hover:scale-105"
                         >
                           {v.resolution} ({v.ext.toUpperCase()})
                         </button>

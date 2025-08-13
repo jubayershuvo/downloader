@@ -61,7 +61,7 @@ const ProcessingDownload: React.FC<ProcessingDownloadProps> = ({ type }) => {
       <>
         {/* Overlay with fade-in */}
         <motion.div
-          className="fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm z-[9999]"
+          className="fixed inset-0 bg-blend-multiply bg-opacity-20 backdrop-blur-sm z-[9999]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
