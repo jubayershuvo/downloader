@@ -21,6 +21,7 @@ function TiktokPage() {
   const handleProcess = async () => {
     if (!url.trim() || !url.includes("tiktok.com")) {
       setError("Please paste a Tiktok URL");
+      setUrl("");
       return;
     }
     setError("");

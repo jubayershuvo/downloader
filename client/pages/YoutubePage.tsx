@@ -21,6 +21,7 @@ function YoutubePage() {
   const handleProcess = async () => {
     if (!url.trim() || !url.includes("youtube.com")) {
       setError("Please paste a YouTube URL");
+      setUrl("");
       return;
     }
     setError("");
