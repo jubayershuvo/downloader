@@ -7,7 +7,7 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <a href="/">
           <h1 className="text-white text-3xl font-extrabold select-none">
-            🎬 YouTube Downloader
+            🎬 All Snap
           </h1>
         </a>
         <nav className="hidden sm:flex space-x-8 font-semibold text-white">

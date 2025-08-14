@@ -19,7 +19,7 @@ function YoutubePage() {
   console.log("Server URL:", SERVER_URL);
 
   const handleProcess = async () => {
-    if (!url.trim() || !url.includes("youtube.com")) {
+    if (!url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/))[\w\d_-]{11}/)) {
       setError("Please paste a YouTube URL");
       setUrl("");
       return;

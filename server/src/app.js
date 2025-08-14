@@ -7,6 +7,8 @@ import "dotenv/config";
 import ytRouter from "./routers/yt-routes.js";
 import { delete1DayOldFiles } from "./utils/r2Client.js";
 import tiktokRouter from "./routers/tiktok-routes.js";
+import fbRouter from "./routers/fb-routes.js";
+import instaRouter from "./routers/insta-routes.js";
 
 const app = express();
 
@@ -30,5 +32,7 @@ app.get("/", (req, res) => {
 
 app.use("/yt", ytRouter);
 app.use("/tiktok", tiktokRouter);
+app.use("/fb", fbRouter);
+app.use("/insta", instaRouter);
 
 export default app;

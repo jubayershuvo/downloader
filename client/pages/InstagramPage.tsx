@@ -8,7 +8,7 @@ import ProcessingDownload from "@/components/ProcessingDownload";
 
 const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL ?? "";
 
-function TiktokPage() {
+function InstagramPage() {
   const [url, setUrl] = useState("");
   const [videoInfo, setVideoInfo] = useState<any>(null);
   const [error, setError] = useState("");
@@ -16,16 +16,11 @@ function TiktokPage() {
     "video" | "audio" | "metaInfo" | null
   >(null);
 
-  const formatDuration = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = seconds % 60;
-    return `${hours ? `${hours}:` : ""}${minutes < 10 ? "0" : ""}${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
-  };
+  console.log("Server URL:", SERVER_URL);
 
   const handleProcess = async () => {
-    if (!url.trim() || !url.includes("tiktok")) {
-      setError("Please paste a Tiktok URL");
+    if (!url.includes('instagram.com')) {
+      setError("Please paste a Instagram URL");
       setUrl("");
       return;
     }
@@ -34,7 +29,7 @@ function TiktokPage() {
     setDownloadType("metaInfo");
     try {
       const res = await axios.get(
-        `${SERVER_URL}/tiktok/video/info?url=${encodeURIComponent(url)}`
+        `${SERVER_URL}/insta/video/info?url=${encodeURIComponent(url)}`
       );
       setVideoInfo(res.data);
       setUrl(""); // Clear input after successful fetch
@@ -46,9 +41,9 @@ function TiktokPage() {
 
   function formatDate(dateStr: string) {
     // Extract parts
-    const year = dateStr?.slice(0, 4);
-    const monthNum = parseInt(dateStr?.slice(4, 6), 10);
-    const day = dateStr?.slice(6, 8);
+    const year = dateStr.slice(0, 4);
+    const monthNum = parseInt(dateStr.slice(4, 6), 10);
+    const day = dateStr.slice(6, 8);
 
     // Month names array
     const months = [
@@ -84,18 +79,20 @@ function TiktokPage() {
     return num.toString();
   }
 
+  console.log(videoInfo);
+
   const handleDownload = async (format_id: string, type: any) => {
     try {
       setDownloadType(type);
-      const url = `${SERVER_URL}/tiktok/video/download?videoId=${videoInfo.videoId}&format_id=${format_id}`;
+      const url = `${SERVER_URL}/insta/video/download?videoId=${videoInfo.videoId}&format_id=${format_id}`;
 
       const res = await axios.get(url);
       const filePath = res.data.publicUrl;
 
+
       // Create an anchor element
       const link = document.createElement("a");
       link.href = `/get_file?url=${encodeURIComponent(filePath)}`;
-      // link.href = filePath;
       link.download = filePath.split("/").pop() || "downloaded_file";
       link.click();
       setDownloadType(null);
@@ -114,7 +111,7 @@ function TiktokPage() {
       {/* Header */}
       <div className="text-center mb-8 animate-fadeIn">
         <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-purple-500 drop-shadow-lg">
-          Tiktok Video Downloader
+          Instagram Video Downloader
         </h1>
         <p className="text-gray-600 mt-2 text-lg">
           Download in up to <span className="font-semibold">4K</span> or extract
@@ -126,7 +123,7 @@ function TiktokPage() {
       <div className="flex flex-col sm:flex-row items-center gap-3 mb-6 w-full">
         <input
           type="text"
-          placeholder="🎥 Paste Tiktok URL here..."
+          placeholder="🎥 Paste Instagram URL here..."
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           className="w-full border border-gray-300 rounded-lg p-3 shadow-md focus:outline-none focus:ring-4 focus:ring-red-400 transition"
@@ -135,7 +132,7 @@ function TiktokPage() {
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
           {!url ? (
             <button
-              onClick={() => navigator?.clipboard?.readText().then(setUrl)}
+               onClick={() => navigator?.clipboard?.readText().then(setUrl)}
               className="w-full sm:w-auto bg-gray-200 hover:bg-gray-300 transition text-gray-700 px-6 py-3 rounded-lg shadow-lg"
             >
               Paste
@@ -184,20 +181,20 @@ function TiktokPage() {
                   {formatViews(videoInfo.viewCount)}
                 </span>
                 <span className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
-                  {formatDuration(videoInfo.duration)}
+                  {videoInfo.duration_string}
                 </span>
               </div>
 
               {/* Formats */}
               <div className="flex-1 flex flex-col gap-4">
                 {/* Audio */}
-                {videoInfo.formats?.watermarked?.length > 0 && (
+                {videoInfo.formats?.audio?.length > 0 && (
                   <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl shadow p-5 hover:shadow-lg transition">
                     <h3 className="text-lg font-semibold mb-3 text-green-700">
-                      Watermarked Formats
+                      Audio Formats
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {videoInfo.formats.watermarked.map((a: any) => (
+                      {videoInfo.formats.audio.map((a: any) => (
                         <button
                           onClick={() => handleDownload(a.format_id, "audio")}
                           key={a.format_id}
@@ -300,4 +297,4 @@ function TiktokPage() {
   );
 }
 
-export default TiktokPage;
+export default InstagramPage;

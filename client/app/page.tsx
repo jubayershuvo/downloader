@@ -3,7 +3,7 @@ import HomePage from "@/pages/HomePage";
 
 
 export const metadata: Metadata = {
-  title: 'YouTube Video Downloader',
+  title: 'All Snap Downloader',
   description: 'Download videos from YouTube in various formats',
 }
 
