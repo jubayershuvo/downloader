@@ -1,6 +1,5 @@
 [build]
-builder = "NIXPACKS"
-nixPkgs = ["nodejs", "python3"]
+builder = "dockerfile"
 
 [deploy]
 startCommand = "npm start"
