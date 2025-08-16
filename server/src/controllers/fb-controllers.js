@@ -4,18 +4,7 @@ import ytdlp from "yt-dlp-exec";
 import { extractYTVideoId } from "../utils/get-id.js";
 import fs from "fs";
 import path from "path";
-
-const makeSafeR2Key = (videoId, title, resolution, ext) => {
-  // Remove unsafe filesystem/URL characters, including #
-  const cleanedTitle = title
-    .replace(/[\/\\?%*:|"<>#&+=@!$^`~[\]{};,]+/g, "")
-    .trim();
-
-  // Replace spaces with dash for readability
-  const safeTitle = cleanedTitle.replace(/\s+/g, "-");
-
-  return `${videoId}/${safeTitle}-${resolution}-JSCoder.${ext}`;
-};
+import { makeSafeR2Key } from "../utils/tools.js";
 
 const downloadCmd = async (publicUrl, res) => {
   console.log("Downloading file from R2:", publicUrl);
