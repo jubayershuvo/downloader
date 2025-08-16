@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
     "postinstall": "apt-get update && apt-get install -y python3 && ln -s /usr/bin/python3 /usr/bin/python || true"
   },
   "keywords": [],
