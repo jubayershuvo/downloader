@@ -10,7 +10,7 @@ export default function HomePage() {
     { name: "Facebook", icon: Facebook, href: "/facebook", color: "text-blue-600" },
     { name: "TikTok", icon: Music, href: "/tiktok", color: "text-black dark:text-white" },
     { name: "Instagram", icon: Instagram, href: "/instagram", color: "text-pink-500" },
-    { name: "Twitter/X", icon: Globe, href: "/twitter", color: "text-sky-500" },
+    { name: "Twitter/X", icon: Globe, href: "/x", color: "text-sky-500" },
     { name: "LinkedIn", icon: Globe, href: "/linkedin", color: "text-blue-700" },
   ];
 
