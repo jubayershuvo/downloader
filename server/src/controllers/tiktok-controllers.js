@@ -4,18 +4,18 @@ import ytdlp from "yt-dlp-exec";
 import { extractTikTokId, extractYTVideoId } from "../utils/get-id.js";
 import fs from "fs";
 import path from "path";
-import slugify from "slugify"; // npm install slugify
+
 
 const makeSafeR2Key = (videoId, title, resolution, ext) => {
-  // Remove dangerous filesystem & HTTP chars, strip emojis
-  const asciiTitle = slugify(title, {
-    replacement: "-",
-    remove: /[^\x00-\x7F]/g, // remove non-ASCII
-    lower: false,
-    strict: true,
-    trim: true,
-  });
-  return `${videoId}/${asciiTitle}-${resolution}-jsCoder.${ext}`;
+  // Remove unsafe filesystem/URL characters, including #
+  const cleanedTitle = title
+    .replace(/[\/\\?%*:|"<>#&+=@!$^`~[\]{};,]+/g, "")
+    .trim();
+
+  // Replace spaces with dash for readability
+  const safeTitle = cleanedTitle.replace(/\s+/g, "-");
+
+  return `${videoId}/${safeTitle}-${resolution}-JSCoder.${ext}`;
 };
 
 const downloadCmd = async (publicUrl, res) => {
