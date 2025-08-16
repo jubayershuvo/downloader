@@ -6,15 +6,13 @@ import fs from "fs";
 import path from "path";
 
 const makeSafeR2Key = (videoId, title, resolution, ext) => {
-  // Remove unsafe filesystem/URL characters, including #
+  // Remove unsafe filesystem/URL characters, but KEEP spaces
   const cleanedTitle = title
-    .replace(/[\/\\?%*:|"<>#&+=@!$^`~[\]{};,]+/g, "")
+    .replace(/[\/\\?%*:|"<>#&+=@!$^`~'[\]{};,]+/g, "") // remove bad chars
+    .replace(/\s+/g, " ") // collapse multiple spaces into one
     .trim();
 
-  // Replace spaces with dash for readability
-  const safeTitle = cleanedTitle.replace(/\s+/g, " ");
-
-  return `${videoId}/${safeTitle}-${resolution}-JSCoder.${ext}`;
+  return `${videoId}/${cleanedTitle} ${resolution} JSCoder.${ext}`;
 };
 
 const downloadCmd = async (publicUrl, res) => {
