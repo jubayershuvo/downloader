@@ -1,3 +1,6 @@
 [build]
 builder = "NIXPACKS"
 nixPkgs = ["nodejs", "python3"]
+
+[deploy]
+startCommand = "npm start"
