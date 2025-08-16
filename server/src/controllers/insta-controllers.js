@@ -116,7 +116,7 @@ export const videoDownload = async (req, res) => {
       }
 
       await ytdlp(videoInfo.url, {
-        format: `${format_id}/bestaudio/`,
+        format: `${format_id}/bestaudio`,
         output: audioFilePath,
         noWarnings: true,
         noCheckCertificates: true,
