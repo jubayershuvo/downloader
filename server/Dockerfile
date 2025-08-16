@@ -5,20 +5,20 @@ FROM node:20
 RUN apt-get update && apt-get install -y python3 python3-pip && \
     ln -s /usr/bin/python3 /usr/bin/python
 
-# Install yt-dlp globally (optional, helps avoid runtime issues)
-RUN pip3 install yt-dlp
+# Install yt-dlp globally (optional, avoids runtime issues)
+RUN pip3 install --no-cache-dir yt-dlp
 
-# Set workdir
+# Set working directory
 WORKDIR /app
 
-# Copy deps first
+# Copy package files and install deps
 COPY package*.json ./
 RUN npm ci --omit=dev
 
-# Copy the rest
+# Copy source code
 COPY . .
 
-# Expose port
+# Expose app port (Railway auto-detects PORT but 3000 is common)
 EXPOSE 3000
 
 # Start the app
