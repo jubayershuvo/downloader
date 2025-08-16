@@ -12,7 +12,7 @@ const makeSafeR2Key = (videoId, title, resolution, ext) => {
     .trim();
 
   // Replace spaces with dash for readability
-  const safeTitle = cleanedTitle.replace(/\s+/g, "-");
+  const safeTitle = cleanedTitle.replace(/\s+/g, " ");
 
   return `${videoId}/${safeTitle}-${resolution}-JSCoder.${ext}`;
 };
