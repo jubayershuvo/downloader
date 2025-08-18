@@ -273,7 +273,7 @@ export const videoInfo = async (req, res) => {
       return bBitrate - aBitrate;
     });
 
-    console.log(info.title);
+ 
 
     const videoInfo = {
       videoId: info.id,
