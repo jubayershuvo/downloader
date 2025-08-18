@@ -195,7 +195,7 @@ export const videoInfo = async (req, res) => {
       skipDownload: true,
       callHome: false,
       noPlaylist: true,
-      // format: "bestvideo+bestaudio/best",
+
       addHeader: ["referer:youtube.com", "user-agent:googlebot"],
     });
 
