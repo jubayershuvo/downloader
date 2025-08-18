@@ -8,6 +8,14 @@ import ProcessingDownload from "@/components/ProcessingDownload";
 
 const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL ?? "";
 
+const formatSize = (bytes: number) => {
+  if (!bytes || bytes <= 0) return null;
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  const size = bytes / Math.pow(1024, i);
+  return `${size.toFixed(2)} ${units[i]}`;
+};
+
 function YoutubePage() {
   const [url, setUrl] = useState("");
   const [videoInfo, setVideoInfo] = useState<any>(null);
@@ -201,6 +209,7 @@ function YoutubePage() {
                           className="px-4 py-2 cursor-pointer bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm shadow transition transform hover:scale-105"
                         >
                           {a.resolution} ({a.ext.toUpperCase()})
+                          {a.filesize && ` - ${formatSize(a.filesize)}`}
                         </button>
                       ))}
                     </div>
@@ -221,6 +230,7 @@ function YoutubePage() {
                           className="px-4 py-2 cursor-pointer bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-sm shadow transition transform hover:scale-105"
                         >
                           {v.resolution} ({v.ext.toUpperCase()})
+                          {v.filesize && ` - ${formatSize(v.filesize)}`}
                         </button>
                       ))}
                     </div>

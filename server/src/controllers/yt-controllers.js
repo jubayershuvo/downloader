@@ -195,9 +195,12 @@ export const videoInfo = async (req, res) => {
       skipDownload: true,
       callHome: false,
       noPlaylist: true,
-      format: "bestvideo+bestaudio/best",
+      // format: "bestvideo+bestaudio/best",
       addHeader: ["referer:youtube.com", "user-agent:googlebot"],
     });
+
+    // console.log(info)
+    // return res.status(200).json(info);
 
     if (!info || !Array.isArray(info.formats)) {
       return res.status(500).json({ error: "Invalid video info returned" });
@@ -217,6 +220,7 @@ export const videoInfo = async (req, res) => {
 
       if (!f.url) continue;
 
+
       // Define resolution or fallback label
       const resolution = f.height
         ? `${f.height}p`
@@ -234,12 +238,13 @@ export const videoInfo = async (req, res) => {
           : "audio";
 
       const ext = included === "audio" ? "mp3" : "mp4";
+      console.log(f);
 
       const formatEntry = {
         format_id: f.format_id,
         resolution,
         ext,
-        filesize: f.filesize ?? f.filesize_approx ?? null,
+        filesize: f.filesize || f.filesize_approx || null,
         url: f.url,
         included,
       };
@@ -259,7 +264,7 @@ export const videoInfo = async (req, res) => {
     videoFormats.sort((a, b) => {
       const aRes = parseInt(a.resolution) || 0;
       const bRes = parseInt(b.resolution) || 0;
-      return bRes - aRes;
+      return aRes - bRes;
     });
 
     audioFormats.sort((a, b) => {
