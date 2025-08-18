@@ -240,7 +240,7 @@ export const videoInfo = async (req, res) => {
 
       let filesize = f.filesize || f.filesize_approx || null;
 
-      if (included === "video") {
+      if (included === "video" && f.filesize) {
         const bestAudio = info.formats
           .filter((a) => a.acodec !== "none" && ["m4a", "mp3"].includes(a.ext))
           .sort(
