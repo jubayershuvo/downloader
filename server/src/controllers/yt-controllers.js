@@ -220,7 +220,6 @@ export const videoInfo = async (req, res) => {
 
       if (!f.url) continue;
 
-
       // Define resolution or fallback label
       const resolution = f.height
         ? `${f.height}p`
@@ -239,12 +238,29 @@ export const videoInfo = async (req, res) => {
 
       const ext = included === "audio" ? "mp3" : "mp4";
       console.log(f);
+      let filesize = f.filesize || f.filesize_approx || null;
+
+      if (included === "video") {
+        const bestAudio = info.formats
+          .filter((a) => a.acodec !== "none" && ["m4a", "mp3"].includes(a.ext))
+          .sort(
+            (a, b) =>
+              (b.filesize ?? b.filesize_approx ?? 0) -
+              (a.filesize ?? a.filesize_approx ?? 0)
+          )[0];
+
+        if (bestAudio) {
+          const audioSize =
+            bestAudio.filesize ?? bestAudio.filesize_approx ?? 0;
+          filesize = (filesize ?? 0) + audioSize;
+        }
+      }
 
       const formatEntry = {
         format_id: f.format_id,
         resolution,
         ext,
-        filesize: f.filesize || f.filesize_approx || null,
+        filesize,
         url: f.url,
         included,
       };
@@ -272,8 +288,6 @@ export const videoInfo = async (req, res) => {
       const bBitrate = b.filesize || 0;
       return bBitrate - aBitrate;
     });
-
- 
 
     const videoInfo = {
       videoId: info.id,
