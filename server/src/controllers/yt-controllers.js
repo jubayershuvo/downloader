@@ -237,7 +237,7 @@ export const videoInfo = async (req, res) => {
           : "audio";
 
       const ext = included === "audio" ? "mp3" : "mp4";
-      console.log(f);
+
       let filesize = f.filesize || f.filesize_approx || null;
 
       if (included === "video") {
