@@ -273,7 +273,7 @@ export const videoInfo = async (req, res) => {
     const videoInfo = {
       videoId: info.id,
       source: "youtube",
-      title: info.title || "",
+      title: info.title || info.fulltitle || "",
       thumbnail: info.thumbnail || "",
       description: info.description || "",
       uploader: info.uploader || "",
