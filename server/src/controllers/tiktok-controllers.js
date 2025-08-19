@@ -52,7 +52,6 @@ export const videoDownload = async (req, res) => {
       return res.status(404).json({ error: "Requested format not found" });
     }
 
-
     const tempDir = path.resolve("./temp");
     await fs.promises.mkdir(tempDir, { recursive: true });
 
